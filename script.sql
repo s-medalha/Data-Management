@@ -2,7 +2,7 @@
    Bookstore
    ============================================================ */
 
-DROP DATABASE bookstore_db; -- !!!!!APAGAR DEPOIS!!!!!
+DROP DATABASE bookstore_db;
 CREATE DATABASE IF NOT EXISTS bookstore_db
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
@@ -15,29 +15,29 @@ USE bookstore_db;
 -- Publishers
 CREATE TABLE IF NOT EXISTS Publisher (
   Publisher_ID   INT AUTO_INCREMENT NOT NULL,
-  Publisher_Name VARCHAR(100) UNIQUE NOT NULL,
+  Publisher_Name VARCHAR(30) UNIQUE NOT NULL,
   PRIMARY KEY (Publisher_ID)
 ) ;
 
 -- Genres
 CREATE TABLE IF NOT EXISTS Genre (
   Genre_ID   INT AUTO_INCREMENT NOT NULL,
-  Genre_Name VARCHAR(50) UNIQUE NOT NULL,
+  Genre_Name VARCHAR(20) UNIQUE NOT NULL,
  PRIMARY KEY (Genre_ID)
 ) ;
 
 -- Authors
 CREATE TABLE IF NOT EXISTS Author (
   Author_ID  INT AUTO_INCREMENT NOT NULL,
-  Author_FirstName VARCHAR(50) NOT NULL,
-  Author_LastName  VARCHAR(50) NOT NULL,
+  Author_FirstName VARCHAR(20) NOT NULL,
+  Author_LastName  VARCHAR(20) NOT NULL,
   PRIMARY KEY (Author_ID)
 ) ;
 
 -- Book Formats (ebook, hardcover, etc.)
 CREATE TABLE IF NOT EXISTS Book_Format (
   Format_ID  INT AUTO_INCREMENT NOT NULL,
-  Format_Name VARCHAR(50) UNIQUE NOT NULL,
+  Format_Name VARCHAR(20) UNIQUE NOT NULL,
   PRIMARY KEY (Format_ID)
 ) ;
 
@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS Book (
   Publisher_ID  INT NOT NULL,
   Genre_ID      INT NOT NULL,
   Format_ID     INT NOT NULL,
-  Title         VARCHAR(150) NOT NULL,
-  Edition       VARCHAR(30),
+  Title         VARCHAR(50) NOT NULL,
+  Edition       VARCHAR(10),
   Price         DECIMAL(10,2) NOT NULL,
   Stock         INT NOT NULL DEFAULT 0, 
   PRIMARY KEY (Book_ID),
@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS Authors_Books (
 -- Customers
 CREATE TABLE IF NOT EXISTS Customer (
   Customer_ID INT AUTO_INCREMENT NOT NULL,
-  Customer_FirstName VARCHAR(100) NOT NULL,
-  Customer_LastName VARCHAR(100) NOT NULL,
+  Customer_FirstName VARCHAR(20) NOT NULL,
+  Customer_LastName VARCHAR(20) NOT NULL,
   Email      VARCHAR(100) UNIQUE,
   Phone      VARCHAR(20),
   PRIMARY KEY (Customer_ID)
@@ -685,7 +685,7 @@ INSERT INTO Survey_Response (Survey_ID, Customer_ID, Rating, Comments, Response_
 (3001,1,5,'Great service and fast delivery.','2025-10-02 10:00:00'),
 (3002,2,4,'Website was easy to use.','2025-10-02 10:10:00'),
 (3003,3,3,'Delivery took a bit longer.','2025-10-02 10:20:00'),
-(3004,4,5,'Excellent in-store experience.','2025-10-02 10:30:00'),
+(3004,4,5,'Site was very pleasant   .','2025-10-02 10:30:00'),
 (3005,5,4,'Customer support was helpful.','2025-10-02 10:40:00'),
 (3006,6,5,'Very satisfied overall.','2025-10-03 09:00:00'),
 (3007,7,2,'Payment failed once, then worked.','2025-10-03 09:10:00'),
@@ -694,7 +694,7 @@ INSERT INTO Survey_Response (Survey_ID, Customer_ID, Rating, Comments, Response_
 (3010,10,3,'It was okay.','2025-10-03 09:40:00'),
 (3011,11,4,'Good communication via email.','2025-10-03 10:00:00'),
 (3012,12,5,'Super fast refund on a return.','2025-10-03 10:10:00'),
-(3013,13,4,'Nice staff at the store.','2025-10-03 10:20:00'),
+(3013,13,4,'Good website.','2025-10-03 10:20:00'),
 (3014,14,5,'Will definitely buy again.','2025-10-03 10:30:00'),
 (3015,15,2,'Site was slow at checkout.','2025-10-03 10:40:00'),
 (3016,16,4,'Clear order tracking.','2025-10-03 11:00:00'),
