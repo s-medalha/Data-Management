@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS Wishlist (
 -- Surveys
 CREATE TABLE IF NOT EXISTS Survey (
   Survey_ID     INT AUTO_INCREMENT NOT NULL,
-  Order_ID      INT, #this can be null in the case of a survey that's not linked to an order  
+  Order_ID      INT, -- this can be null in the case of a survey that's not linked to an order
   Sent_At_Date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (Survey_ID),
   FOREIGN KEY (Order_ID)    REFERENCES Sale_Order(Order_ID) ON UPDATE CASCADE ON DELETE RESTRICT
