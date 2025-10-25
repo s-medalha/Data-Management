@@ -1,8 +1,6 @@
 /* ============================================================
    Bookstore
    ============================================================ */
-
-DROP DATABASE bookstore_db;
 CREATE DATABASE IF NOT EXISTS bookstore_db
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
@@ -29,8 +27,8 @@ CREATE TABLE IF NOT EXISTS Genre (
 -- Authors
 CREATE TABLE IF NOT EXISTS Author (
   Author_ID  INT AUTO_INCREMENT NOT NULL,
-  Author_FirstName VARCHAR(20) NOT NULL,
-  Author_LastName  VARCHAR(20) NOT NULL,
+  Author_First_Name VARCHAR(20) NOT NULL,
+  Author_Last_Name  VARCHAR(20) NOT NULL,
   PRIMARY KEY (Author_ID)
 ) ;
 
@@ -74,8 +72,8 @@ CREATE TABLE IF NOT EXISTS Authors_Books (
 -- Customers
 CREATE TABLE IF NOT EXISTS Customer (
   Customer_ID INT AUTO_INCREMENT NOT NULL,
-  Customer_FirstName VARCHAR(20) NOT NULL,
-  Customer_LastName VARCHAR(20) NOT NULL,
+  Customer_First_Name VARCHAR(20) NOT NULL,
+  Customer_Last_Name VARCHAR(20) NOT NULL,
   Email      VARCHAR(100) UNIQUE,
   Phone      VARCHAR(20),
   PRIMARY KEY (Customer_ID)
@@ -95,7 +93,7 @@ CREATE TABLE IF NOT EXISTS Sale_Order_Items (
   Order_ID   INT NOT NULL,
   Book_ID    INT NOT NULL,
   Quantity   INT NOT NULL,
-  Unit_Price INT NOT NULL,
+  Unit_Price DECIMAL(10,2) NOT NULL, -- price of the book at the time of sale
   PRIMARY KEY (Order_ID, Book_ID),
   FOREIGN KEY (Order_ID) REFERENCES Sale_Order(Order_ID) ON UPDATE CASCADE ON DELETE RESTRICT,
   FOREIGN KEY (Book_ID)  REFERENCES Book(Book_ID) ON UPDATE CASCADE ON DELETE RESTRICT
@@ -125,13 +123,14 @@ CREATE TABLE IF NOT EXISTS Survey (
 ) ;
 
 CREATE TABLE IF NOT EXISTS Survey_Response (
-Survey_ID     INT AUTO_INCREMENT NOT NULL,
+Survey_ID     INT NOT NULL,
 Customer_ID   INT NOT NULL,  
 Rating        TINYINT NOT NULL,
 Comments      VARCHAR(255),
 Response_Date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 Primary KEY (Survey_ID, Customer_ID),
-FOREIGN KEY (Customer_ID) REFERENCES Customer(Customer_ID) ON UPDATE CASCADE ON DELETE RESTRICT
+FOREIGN KEY (Customer_ID) REFERENCES Customer(Customer_ID) ON UPDATE CASCADE ON DELETE RESTRICT,
+FOREIGN KEY (Survey_ID) REFERENCES Survey(Survey_ID) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ;
 
 
@@ -172,7 +171,7 @@ INSERT INTO Book_Format (Format_ID, Format_Name) VALUES
 /* ------------------------------------------------------------
    2) AUTHORS (40)
    ------------------------------------------------------------ */
-INSERT INTO Author (Author_ID, Author_FirstName, Author_LastName) VALUES
+INSERT INTO Author (Author_ID, Author_First_Name, Author_Last_Name) VALUES
 (1,'George','Orwell'),
 (2,'Harper','Lee'),
 (3,'J.K.','Rowling'),
@@ -215,7 +214,7 @@ INSERT INTO Author (Author_ID, Author_FirstName, Author_LastName) VALUES
 (40,'Sally','Rooney');
 
 /* ------------------------------------------------------------
-   3) BOOKS (50) — cycle publishers/genres/formats
+   3) BOOKS (50)
    ISBNs are unique placeholders 97800000000xx (13 chars)
    ------------------------------------------------------------ */
 INSERT INTO Book
@@ -276,7 +275,7 @@ VALUES
    4) AUTHORS_BOOKS (map every book to at least one author)
    Simple pattern + a few multi-author examples
    ------------------------------------------------------------ */
--- One main author per book (Author_ID cycles 1..40)
+-- One main author per book
 INSERT INTO Authors_Books (Author_ID, Book_ID) VALUES
 (1,1),(2,2),(3,3),(4,4),(5,5),
 (6,6),(7,7),(8,8),(9,9),(10,10),
@@ -298,7 +297,7 @@ INSERT INTO Authors_Books (Author_ID, Book_ID) VALUES
    5) CUSTOMERS (100)
    ------------------------------------------------------------ */
 INSERT INTO Customer
-(Customer_ID, Customer_FirstName, Customer_LastName, Email, Phone) VALUES
+(Customer_ID, Customer_First_Name, Customer_Last_Name, Email, Phone) VALUES
 (1,'Alice','Johnson','alice.johnson@example.com','+1555000001'),
 (2,'Bob','Smith','bob.smith@example.com','+1555000002'),
 (3,'Carol','Davis','carol.davis@example.com','+1555000003'),
@@ -487,15 +486,14 @@ INSERT INTO Sale_Order (Order_ID, Customer_ID, Order_Date) VALUES
 
 /* ------------------------------------------------------------
    7) ORDER ITEMS (~140) — 1–3 items per order
-   (Unit_Price is INT in your schema)
    ------------------------------------------------------------ */
 INSERT INTO Sale_Order_Items (Order_ID, Book_ID, Quantity, Unit_Price) VALUES
-(1001,1,1,13),
-(1001,5,1,32),
-(1001,8,3,30),
-(1002,3,1,19),
-(1002,5,1,32),
-(1003,8,2,30),
+(1001,1,1,12.99),
+(1001,5,1,32.05),
+(1001,8,3,30.50),
+(1002,3,1,19.05),
+(1002,5,1,32.10),
+(1003,8,2,30.90),
 (1004,9,1,16),
 (1004,10,1,20),
 (1005,11,1,24),
@@ -503,18 +501,18 @@ INSERT INTO Sale_Order_Items (Order_ID, Book_ID, Quantity, Unit_Price) VALUES
 (1006,13,1,28),
 (1007,14,4,22),
 (1007,20,1,28), 
-(1008,22,1,18),
+(1008,22,1,18.55),
 (1008,15,3,32),
 (1009,16,3,25),
 (1010,17,1,21),
-(1011,18,1,13),
+(1011,18,1,13.99),
 (1011,19,1,14),
 (1012,20,1,26),
 (1012,31,1,17), 
 (1013,33,1,24),  
 (1014,35,1,34),  
 (1014,22,6,18),
-(1015,36,1,16),  
+(1015,36,1,16.45),  
 (1015,24,1,28),
 (1016,37,1,23), 
 (1017,38,1,28), 
@@ -678,29 +676,28 @@ INSERT INTO Survey (Survey_ID, Order_ID, Sent_At_Date) VALUES
 
 /* ------------------------------------------------------------
    10) SURVEY RESPONSES (20)
-   Note: Your schema auto-increments Survey_Response.Survey_ID independently.
-   We insert explicit IDs for clarity; they need not match Survey.Survey_ID.
    ------------------------------------------------------------ */
 INSERT INTO Survey_Response (Survey_ID, Customer_ID, Rating, Comments, Response_Date) VALUES
-(3001,1,5,'Great service and fast delivery.','2025-10-02 10:00:00'),
-(3002,2,4,'Website was easy to use.','2025-10-02 10:10:00'),
-(3003,3,3,'Delivery took a bit longer.','2025-10-02 10:20:00'),
-(3004,4,5,'Site was very pleasant   .','2025-10-02 10:30:00'),
-(3005,5,4,'Customer support was helpful.','2025-10-02 10:40:00'),
-(3006,6,5,'Very satisfied overall.','2025-10-03 09:00:00'),
-(3007,7,2,'Payment failed once, then worked.','2025-10-03 09:10:00'),
-(3008,8,4,'Packaging was neat and safe.','2025-10-03 09:20:00'),
-(3009,9,5,'Loved the quick pickup.','2025-10-03 09:30:00'),
-(3010,10,3,'It was okay.','2025-10-03 09:40:00'),
-(3011,11,4,'Good communication via email.','2025-10-03 10:00:00'),
-(3012,12,5,'Super fast refund on a return.','2025-10-03 10:10:00'),
-(3013,13,4,'Good website.','2025-10-03 10:20:00'),
-(3014,14,5,'Will definitely buy again.','2025-10-03 10:30:00'),
-(3015,15,2,'Site was slow at checkout.','2025-10-03 10:40:00'),
-(3016,16,4,'Clear order tracking.','2025-10-03 11:00:00'),
-(3017,17,5,'All good from end to end.','2025-10-03 11:10:00'),
-(3018,18,3,'Average experience.','2025-10-03 11:20:00'),
-(3019,19,4,'Delivery guy was polite.','2025-10-03 11:30:00'),
-(3020,20,5,'Couldn’t be happier.','2025-10-03 11:40:00');
+(1,1,5,'Great service and fast delivery.','2025-10-02 10:00:00'),
+(2,2,4,'Website was easy to use.','2025-10-02 10:10:00'),
+(3,3,3,'Delivery took a bit longer.','2025-10-02 10:20:00'),
+(4,4,5,'Site was very pleasant.','2025-10-02 10:30:00'),
+(5,5,4,'Customer support was helpful.','2025-10-02 10:40:00'),
+(6,6,5,'Very satisfied overall.','2025-10-03 09:00:00'),
+(7,7,2,'Payment failed once, then worked.','2025-10-03 09:10:00'),
+(8,8,4,'Packaging was neat and safe.','2025-10-03 09:20:00'),
+(9,9,5,'Loved the quick pickup.','2025-10-03 09:30:00'),
+(10,10,3,'It was okay.','2025-10-03 09:40:00'),
+(11,11,4,'Good communication via email.','2025-10-03 10:00:00'),
+(12,12,5,'Super fast refund on a return.','2025-10-03 10:10:00'),
+(13,13,4,'Good website.','2025-10-03 10:20:00'),
+(14,14,5,'Will definitely buy again.','2025-10-03 10:30:00'),
+(15,15,2,'Site was slow at checkout.','2025-10-03 10:40:00'),
+(16,16,4,'Clear order tracking.','2025-10-03 11:00:00'),
+(17,17,5,'All good from end to end.','2025-10-03 11:10:00'),
+(18,18,3,'Average experience.','2025-10-03 11:20:00'),
+(19,19,4,'Delivery guy was polite.','2025-10-03 11:30:00'),
+(20,20,5,'Couldn’t be happier.','2025-10-03 11:40:00');
+
 
 
